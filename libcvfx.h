@@ -41,6 +41,7 @@ namespace cvfx {
 	void hFlip (IplImage *);
 	void vFlip (IplImage *);
 	void oompaLoompa (IplImage *);
+	void invert (IplImage *);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, CvScalar &);

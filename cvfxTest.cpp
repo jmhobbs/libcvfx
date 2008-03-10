@@ -36,7 +36,7 @@
 using namespace std;
 
 string getFilterName(int _effectCounter) {
-	switch (_effectCounter % 10) {
+	switch (_effectCounter % 11) {
 		case 1:
 			return "green";
 			break;
@@ -63,6 +63,9 @@ string getFilterName(int _effectCounter) {
 			break;
 		case 9:
 			return "oompaLoompa";
+			break;
+		case 10:
+			return "invert";
 			break;
 		default:
 			return "none";
@@ -105,7 +108,7 @@ int main(int argc, char * argv[]) {
 			break;
 		}
 
-		switch (effectCounter % 10) {
+		switch (effectCounter % 11) {
 			case 1:
 				cvfx::green(frame);
 				break;
@@ -132,6 +135,9 @@ int main(int argc, char * argv[]) {
 				break;
 			case 9:
 				cvfx::oompaLoompa(frame);
+				break;
+			case 10:
+				cvfx::invert(frame);
 				break;
 			default:
 				break;

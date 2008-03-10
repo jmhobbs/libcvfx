@@ -255,6 +255,25 @@ namespace cvfx {
 	}
 
 	/*!
+		Inverts the coloring of the image. Can be kinda freaky
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+		\note Idea from http://tommy.chheng.com/development/windows_development_setup.html, reimplemented using CvScalar.
+	*/
+	void invert (IplImage * frame) {
+		for(int i = 0; i < frame->height; i++) {
+			for(int j =0; j < frame->width; j++) {
+				bgrNonPerm[0] = cvGet2D(frame, i, j);
+				bgrNonPerm[0].val[0] = 255 - bgrNonPerm[0].val[0];
+				bgrNonPerm[0].val[1] = 255 - bgrNonPerm[0].val[1];
+				bgrNonPerm[0].val[2] = 255 - bgrNonPerm[0].val[2];
+				cvSet2D(frame,i,j,bgrNonPerm[0]);
+			}
+		}
+	}
+
+		/*!
 		UNSTABLE - This one accesses the pixels directly, so it could do some crazy things to
 		your data, or even seg out.  It's a very strong effect when it does work though.
 
