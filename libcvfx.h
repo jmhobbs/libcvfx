@@ -28,20 +28,22 @@
 
 namespace cvfx {
 
-	const char CVFX_VERSION[] = "0.01";
+	const char CVFX_VERSION[] = "0.02 A01";
 
 	// The effects
 	void mirror (IplImage *);
 	void green (IplImage *);
 	void monochrome (IplImage *);
 	void corners (IplImage *);
-	void pixelize (IplImage *, int);
+	void pixelize (IplImage *, int = 4);
 	void memory (IplImage *);
 	void bitmaptrip (IplImage *);
 	void hFlip (IplImage *);
 	void vFlip (IplImage *);
 	void oompaLoompa (IplImage *);
 	void invert (IplImage *);
+	void vStripFlip (IplImage *, int = 4);
+	void photoCopy (IplImage *, int = 50);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, CvScalar &);

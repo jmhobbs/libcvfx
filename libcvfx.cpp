@@ -192,7 +192,7 @@ namespace cvfx {
 		\param HOWMANYPIXELS How much pixelization? Any number works, but too big will react unpredictably.
 		\author John Hobbs john@velvetcache.org
 	*/
-	void pixelize (IplImage * frame, int HOWMANYPIXELS = 4) {
+	void pixelize (IplImage * frame, int HOWMANYPIXELS) {
 		pixelize_bgr = cvGet2D(frame,0,0);
 		for(int i = 0; i < frame->height; i++) {
 			for(int j = 0; j < frame->width; j++) {
@@ -273,7 +273,41 @@ namespace cvfx {
 		}
 	}
 
-		/*!
+	void vStripFlip (IplImage * frame, int strips) {
+		int stripWidth = frame->width/strips;
+		for(int i = 0; i < frame->height/2; i++) {
+			for(int k = 1; k < strips; k+=2) {
+				for(int j = stripWidth*k; j < stripWidth*(k+1); j++) {
+					bgrNonPerm[0] = cvGet2D(frame,i,j);
+					bgrNonPerm[1] = cvGet2D(frame,frame->height-i-1,j);
+					cvSet2D(frame,i,j,bgrNonPerm[1]);
+					cvSet2D(frame,frame->height-i-1,j,bgrNonPerm[0]);
+				}
+			}
+		}
+	}
+
+	void photoCopy (IplImage * frame, int threshold) {
+		threshold = 255*(threshold/100);
+		for(int i = 0; i < frame->height; i++) {
+			for(int j = 0; j < frame->width; j++) {
+				bgrNonPerm[0] = cvGet2D(frame,i,j);
+				if(threshold <= ((bgrNonPerm[0].val[0] + bgrNonPerm[0].val[1] + bgrNonPerm[0].val[2]) / 3)) {
+					bgrNonPerm[0].val[0] = 255;
+					bgrNonPerm[0].val[1] = 255;
+					bgrNonPerm[0].val[2] = 255;
+				}
+				else {
+					bgrNonPerm[0].val[0] = 0;
+					bgrNonPerm[0].val[1] = 0;
+					bgrNonPerm[0].val[2] = 0;
+				}
+				cvSet2D(frame,i,j,bgrNonPerm[0]);
+			}
+		}
+	}
+
+	/*!
 		UNSTABLE - This one accesses the pixels directly, so it could do some crazy things to
 		your data, or even seg out.  It's a very strong effect when it does work though.
 

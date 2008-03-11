@@ -36,7 +36,7 @@
 using namespace std;
 
 string getFilterName(int _effectCounter) {
-	switch (_effectCounter % 11) {
+	switch (_effectCounter % 13) {
 		case 1:
 			return "green";
 			break;
@@ -66,6 +66,12 @@ string getFilterName(int _effectCounter) {
 			break;
 		case 10:
 			return "invert";
+			break;
+		case 11:
+			return "vStripFlip";
+			break;
+		case 12:
+			return "photoCopy";
 			break;
 		default:
 			return "none";
@@ -108,7 +114,7 @@ int main(int argc, char * argv[]) {
 			break;
 		}
 
-		switch (effectCounter % 11) {
+		switch (effectCounter % 13) {
 			case 1:
 				cvfx::green(frame);
 				break;
@@ -122,7 +128,7 @@ int main(int argc, char * argv[]) {
 				cvfx::corners(frame);
 				break;
 			case 5:
-				cvfx::pixelize(frame,4);
+				cvfx::pixelize(frame);
 				break;
 			case 6:
 				cvfx::memory(frame);
@@ -138,6 +144,12 @@ int main(int argc, char * argv[]) {
 				break;
 			case 10:
 				cvfx::invert(frame);
+				break;
+			case 11:
+				cvfx::vStripFlip(frame);
+				break;
+			case 12:
+				cvfx::photoCopy(frame);
 				break;
 			default:
 				break;
