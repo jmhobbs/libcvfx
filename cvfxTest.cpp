@@ -34,9 +34,10 @@
 #include <sstream>
 
 using namespace std;
+#define TOTALEFFECTS 16
 
 string getFilterName(int _effectCounter) {
-	switch (_effectCounter % 13) {
+	switch (_effectCounter % TOTALEFFECTS) {
 		case 1:
 			return "green";
 			break;
@@ -73,6 +74,15 @@ string getFilterName(int _effectCounter) {
 		case 12:
 			return "photoCopy";
 			break;
+		case 13:
+			return "brokenTelevision";
+			break;
+		case 14:
+			return "hStripFlip";
+			break;
+		case 15:
+			return "noise";
+			break;
 		default:
 			return "none";
 			break;
@@ -81,7 +91,8 @@ string getFilterName(int _effectCounter) {
 
 int main(int argc, char * argv[]) {
 
-	int effectCounter = 0;
+	// Stupid hack so you can go through effects in reverse right away
+	int effectCounter = 15*TOTALEFFECTS;
 
 	time_t seconds;
 	stringstream utl;
@@ -114,7 +125,7 @@ int main(int argc, char * argv[]) {
 			break;
 		}
 
-		switch (effectCounter % 13) {
+		switch (effectCounter % TOTALEFFECTS) {
 			case 1:
 				cvfx::green(frame);
 				break;
@@ -149,7 +160,16 @@ int main(int argc, char * argv[]) {
 				cvfx::vStripFlip(frame);
 				break;
 			case 12:
-				cvfx::photoCopy(frame);
+				cvfx::photoCopy(frame,15,0,225,0);
+				break;
+			case 13:
+				cvfx::brokenTelevision(frame);
+				break;
+			case 14:
+				cvfx::hStripFlip(frame);
+				break;
+			case 15:
+				cvfx::noise(frame);
 				break;
 			default:
 				break;

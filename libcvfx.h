@@ -26,6 +26,8 @@
 #include "cv.h"
 #include "highgui.h"
 
+#include <stdlib.h>
+
 namespace cvfx {
 
 	const char CVFX_VERSION[] = "0.02 A01";
@@ -43,10 +45,14 @@ namespace cvfx {
 	void oompaLoompa (IplImage *);
 	void invert (IplImage *);
 	void vStripFlip (IplImage *, int = 4);
-	void photoCopy (IplImage *, int = 50);
+	void photoCopy (IplImage *, int = 10, int = 255, int = 255, int = 255);
+	void brokenTelevision (IplImage *);
+	void hStripFlip (IplImage *, int = 4);
+	void noise (IplImage *, int = 5);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, CvScalar &);
+	int getRand (int, int);
 }
 
 #endif

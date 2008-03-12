@@ -29,6 +29,9 @@ namespace cvfx {
 	int h,i,j,k;
 	CvScalar bgrNonPerm[10];
 
+	// brokenTelevision
+	int brokenTelevision_scanlines = 0;
+
 	// monochrome
 	CvScalar monochrome_bgr;
 
@@ -273,6 +276,13 @@ namespace cvfx {
 		}
 	}
 
+	/*!
+		Cuts image into vertical sections, every other section is vertically flipped.
+
+		\param frame The frame to work on.
+		\param strips The number of strips to create.
+		\author John Hobbs john@velvetcache.org
+	*/
 	void vStripFlip (IplImage * frame, int strips) {
 		int stripWidth = frame->width/strips;
 		for(int i = 0; i < frame->height/2; i++) {
@@ -287,15 +297,27 @@ namespace cvfx {
 		}
 	}
 
-	void photoCopy (IplImage * frame, int threshold) {
-		threshold = 255*(threshold/100);
+	/*!
+		Distills the image down to two colors based on luminosity.
+		Replaces over threshold values with white by default.
+		If you want something other than white, you may specify.
+
+		\param frame The frame to work on.
+		\param threshold The threshold, defaults to 10, but this needs to be carefully measured.
+		\param blue The blue aspect of the over threshold color.
+		\param green The green aspect of the over threshold color.
+		\param red The red aspect of the over threshold color.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void photoCopy (IplImage * frame, int threshold, int blue, int green, int red) {
+		threshold = 255.0*(threshold/100.0);
 		for(int i = 0; i < frame->height; i++) {
 			for(int j = 0; j < frame->width; j++) {
 				bgrNonPerm[0] = cvGet2D(frame,i,j);
 				if(threshold <= ((bgrNonPerm[0].val[0] + bgrNonPerm[0].val[1] + bgrNonPerm[0].val[2]) / 3)) {
-					bgrNonPerm[0].val[0] = 255;
-					bgrNonPerm[0].val[1] = 255;
-					bgrNonPerm[0].val[2] = 255;
+					bgrNonPerm[0].val[0] = blue;
+					bgrNonPerm[0].val[1] = green;
+					bgrNonPerm[0].val[2] = red;
 				}
 				else {
 					bgrNonPerm[0].val[0] = 0;
@@ -308,7 +330,8 @@ namespace cvfx {
 	}
 
 	/*!
-		UNSTABLE - This one accesses the pixels directly, so it could do some crazy things to
+		UNSTABLE
+		This one accesses the pixels directly, so it could do some crazy things to
 		your data, or even seg out.  It's a very strong effect when it does work though.
 
 		\param frame The frame to work on.
@@ -321,6 +344,84 @@ namespace cvfx {
 			}
 		}
 	}
+
+	/*!
+		UNSTABLE
+		This one isn't working yet.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void brokenTelevision (IplImage * frame) {
+
+		CvScalar white = cvGet2D(frame,1,1);
+		white.val[0] = 255;
+		white.val[1] = 255;
+		white.val[2] = 255;
+
+		//brokenTelevision_scanlines += (frame->height/20);
+		//if( brokenTelevision_scanlines > frame->height)
+		//	brokenTelevision_scanlines = 0;
+		brokenTelevision_scanlines++;
+
+		for(int i = 0; i < frame->height; i++) {
+			int offset = (brokenTelevision_scanlines+i)%frame->height;
+			for(int j = 0; j < frame->width; j++) {
+				if(i == brokenTelevision_scanlines)
+					cvSet2D(frame,offset,j,white);
+				else {
+					bgrNonPerm[0] = cvGet2D(frame,i,j);
+					cvSet2D(frame,offset,j,bgrNonPerm[0]);
+				}
+			}
+		}
+
+	}
+
+	/*!
+		Supposed to inject some random noise, but doesn't do a very good job of it.
+
+		\param frame The frame to work on.
+		\param ratio Supposed to be the signal to noise ratio. Isn't.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void noise (IplImage * frame, int ratio) {
+		for(int i = 0; i < frame->height; i++) {
+			for(int j = 0; j < frame->width; j++) {
+				if(getRand(0,1000) < ratio) {
+					bgrNonPerm[0] = cvGet2D(frame,i,j);
+					bgrNonPerm[1] = cvGet2D(frame,i,j);
+					bgrNonPerm[0].val[0] = getRand(0,255);
+					bgrNonPerm[0].val[1] = getRand(0,255);
+					bgrNonPerm[0].val[2] = getRand(0,255);
+					scalarAverage(bgrNonPerm[0],bgrNonPerm[1]);
+					cvSet2D(frame,i,j,bgrNonPerm[0]);
+				}
+			}
+		}
+	}
+
+	/*!
+		Cuts image into horizontal sections, every other section is horizontally flipped.
+
+		\param frame The frame to work on.
+		\param strips The number of strips to create.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void hStripFlip (IplImage * frame, int strips) {
+		int stripHeight = frame->height/strips;
+		for(int k = 1; k < strips; k += 2) {
+			for(int i = k*stripHeight; i < (k+1)*stripHeight; i++) {
+				for(int j = 0; j < frame->width/2; j++) {
+					bgrNonPerm[0] = cvGet2D(frame,i,j);
+					bgrNonPerm[1] = cvGet2D(frame,i,frame->width-1-j);
+					cvSet2D(frame,i,j,bgrNonPerm[1]);
+					cvSet2D(frame,i,frame->width-1-j,bgrNonPerm[0]);
+				}
+			}
+		}
+	}
+
 
 	// Internal Stuff
 
@@ -335,6 +436,17 @@ namespace cvfx {
 		left.val[0] = (right.val[0]+left.val[0])/2;
 		left.val[1] = (right.val[1]+left.val[1])/2;
 		left.val[2] = (right.val[2]+left.val[2])/2;
+	}
+
+	/*!
+		Convinience function to get random digit within a set of bounds.
+
+		\param lowerBound The lower bound.
+		\param upperBound The upper bound.
+		\author John Hobbs john@velvetcache.org
+	*/
+	int getRand (int lowerBound, int upperBound) {
+		return rand()%upperBound+lowerBound;
 	}
 
 }
