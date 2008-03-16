@@ -30,13 +30,19 @@
 
 namespace cvfx {
 
-	const char CVFX_VERSION[] = "0.02 A01";
+	const char CVFX_VERSION[] = "0.02 A03";
+
+	enum cornersType {
+		TOPLEFT_BOTTOMRIGHT,
+		TOPRIGHT_BOTTOMLEFT,
+		BOTH
+	};
 
 	// The effects
 	void mirror (IplImage *);
 	void green (IplImage *);
 	void monochrome (IplImage *);
-	void corners (IplImage *);
+	void corners (IplImage *, cornersType = TOPLEFT_BOTTOMRIGHT);
 	void pixelize (IplImage *, int = 4);
 	void memory (IplImage *);
 	void bitmaptrip (IplImage *);
@@ -49,6 +55,7 @@ namespace cvfx {
 	void brokenTelevision (IplImage *);
 	void hStripFlip (IplImage *, int = 4);
 	void noise (IplImage *, int = 5);
+	void interlaceLines (IplImage *);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, CvScalar &);

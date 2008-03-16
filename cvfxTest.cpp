@@ -34,7 +34,7 @@
 #include <sstream>
 
 using namespace std;
-#define TOTALEFFECTS 16
+#define TOTALEFFECTS 17
 
 string getFilterName(int _effectCounter) {
 	switch (_effectCounter % TOTALEFFECTS) {
@@ -82,6 +82,9 @@ string getFilterName(int _effectCounter) {
 			break;
 		case 15:
 			return "noise";
+			break;
+		case 16:
+			return "interlaceLines";
 			break;
 		default:
 			return "none";
@@ -170,6 +173,9 @@ int main(int argc, char * argv[]) {
 				break;
 			case 15:
 				cvfx::noise(frame);
+				break;
+			case 16:
+				cvfx::interlaceLines(frame);
 				break;
 			default:
 				break;

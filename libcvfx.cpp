@@ -172,20 +172,43 @@ namespace cvfx {
 	}
 
 	/*!
-		Swaps the top left and bottom right corners.
+		Swaps the selected corners.
 
 		\param frame The frame to work on.
 		\author John Hobbs john@velvetcache.org
 	*/
-	void corners (IplImage * frame) {
+	void corners (IplImage * frame, cornersType type) {
 		for(int i = 0; i < frame->height/2; i++) {
 			for(int j = 0; j < frame->width/2; j++) {
-				bgrNonPerm[0] = cvGet2D(frame,i,j);
-				bgrNonPerm[1] = cvGet2D(frame,i+(frame->height/2),j+(frame->width/2));
-				cvSet2D(frame,i,j,bgrNonPerm[1]);
-				cvSet2D(frame,i+(frame->height/2),j+(frame->width/2),bgrNonPerm[0]);
+				if(type == TOPLEFT_BOTTOMRIGHT || type == BOTH) {
+					bgrNonPerm[0] = cvGet2D(frame,i,j);
+					bgrNonPerm[1] = cvGet2D(frame,i+(frame->height/2),j+(frame->width/2));
+					cvSet2D(frame,i,j,bgrNonPerm[1]);
+					cvSet2D(frame,i+(frame->height/2),j+(frame->width/2),bgrNonPerm[0]);
+				}
+				if(type == TOPRIGHT_BOTTOMLEFT || type == BOTH) {
+					bgrNonPerm[0] = cvGet2D(frame,i,j+(frame->width/2));
+					bgrNonPerm[1] = cvGet2D(frame,i+(frame->height/2),j);
+					cvSet2D(frame,i,j+(frame->width/2),bgrNonPerm[1]);
+					cvSet2D(frame,i+(frame->height/2),j,bgrNonPerm[0]);
+				}
 			}
 		}
+	}
+
+	/*!
+		Adds simulated 'interlace' lines.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void interlaceLines (IplImage * frame) {
+		for(int i = 0; i < 3; i++)
+			bgrNonPerm[0].val[i] = 0;
+
+		for(int i = 1; i < frame->height; i += 2)
+			for(int j = 0; j < frame->width; j++)
+				cvSet2D(frame,i,j,bgrNonPerm[0]);
 	}
 
 	/*!
@@ -379,6 +402,7 @@ namespace cvfx {
 	}
 
 	/*!
+		BROKEN
 		Supposed to inject some random noise, but doesn't do a very good job of it.
 
 		\param frame The frame to work on.
