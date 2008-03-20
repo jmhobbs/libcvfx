@@ -212,6 +212,28 @@ namespace cvfx {
 	}
 
 	/*!
+		BROKEN
+		Sharpen the image.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void horizontalSharpen (IplImage * frame) {
+		IplImage * oFrame = cvCreateImage( cvGetSize(frame), frame->depth, 3 );
+		oFrame = cvCloneImage(frame);
+
+		for(int i = 0; i < frame->height; i++) {
+			for(int j = 1; j < frame->width; j++) {
+				bgrNonPerm[0] = cvGet2D(oFrame,i,j-1);
+				bgrNonPerm[1] = cvGet2D(oFrame,i,j);
+				bgrNonPerm[2] = cvGet2D(oFrame,i,j+1);
+				// if above a bound do double diff up, below do double diff down?
+				cvSet2D(frame,i,j,bgrNonPerm[0]);
+			}
+		}
+	}
+
+	/*!
 		Pixelizes the image, makes it nice and chunky.
 
 		\param frame The frame to work on.
@@ -281,7 +303,7 @@ namespace cvfx {
 	}
 
 	/*!
-		Inverts the coloring of the image. Can be kinda freaky
+		Inverts the coloring of the image.
 
 		\param frame The frame to work on.
 		\author John Hobbs john@velvetcache.org
@@ -322,7 +344,7 @@ namespace cvfx {
 
 	/*!
 		Distills the image down to two colors based on luminosity.
-		Replaces over threshold values with white by default.
+		Replaces over-threshold values with white by default.
 		If you want something other than white, you may specify.
 
 		\param frame The frame to work on.
@@ -369,33 +391,29 @@ namespace cvfx {
 	}
 
 	/*!
-		UNSTABLE
-		This one isn't working yet.
+		Loops the image sort of like a busted television.
 
 		\param frame The frame to work on.
+		\param speed The speed with which to move, from 1 to frame height. Defaults to 45.
 		\author John Hobbs john@velvetcache.org
 	*/
-	void brokenTelevision (IplImage * frame) {
+	void brokenTelevision (IplImage * frame, int speed) {
 
 		CvScalar white = cvGet2D(frame,1,1);
 		white.val[0] = 255;
 		white.val[1] = 255;
 		white.val[2] = 255;
 
-		//brokenTelevision_scanlines += (frame->height/20);
-		//if( brokenTelevision_scanlines > frame->height)
-		//	brokenTelevision_scanlines = 0;
-		brokenTelevision_scanlines++;
+		IplImage * frameCopy = cvCreateImage( cvGetSize(frame), frame->depth, 3 );
+		frameCopy = cvCloneImage(frame);
+
+		brokenTelevision_scanlines += speed;
 
 		for(int i = 0; i < frame->height; i++) {
 			int offset = (brokenTelevision_scanlines+i)%frame->height;
 			for(int j = 0; j < frame->width; j++) {
-				if(i == brokenTelevision_scanlines)
-					cvSet2D(frame,offset,j,white);
-				else {
-					bgrNonPerm[0] = cvGet2D(frame,i,j);
+					bgrNonPerm[0] = cvGet2D(frameCopy,i,j);
 					cvSet2D(frame,offset,j,bgrNonPerm[0]);
-				}
 			}
 		}
 
@@ -471,6 +489,23 @@ namespace cvfx {
 	*/
 	int getRand (int lowerBound, int upperBound) {
 		return rand()%upperBound+lowerBound;
+	}
+
+	/*!
+		Return the average "weight" of the image.
+
+		\param frame The frame to measure.
+		\return value The luminosity from 0 - 255
+	*/
+	int getFrameLuminosity (IplImage * frame) {
+		bgrNonPerm[0] = cvGet2D(frame, 1, 1);
+		for(int i = 0; i < frame->height; i++) {
+			for(int j =0; j < frame->width; j++) {
+				bgrNonPerm[1] = cvGet2D(frame, i, j);
+				scalarAverage(bgrNonPerm[0],bgrNonPerm[1]);
+			}
+		}
+		return (bgrNonPerm[0].val[0] + bgrNonPerm[0].val[1] + bgrNonPerm[0].val[2])/3;
 	}
 
 }

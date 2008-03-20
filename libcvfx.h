@@ -30,7 +30,7 @@
 
 namespace cvfx {
 
-	const char CVFX_VERSION[] = "0.02 A03";
+	const char CVFX_VERSION[] = "0.02 A04";
 
 	enum cornersType {
 		TOPLEFT_BOTTOMRIGHT,
@@ -52,14 +52,17 @@ namespace cvfx {
 	void invert (IplImage *);
 	void vStripFlip (IplImage *, int = 4);
 	void photoCopy (IplImage *, int = 10, int = 255, int = 255, int = 255);
-	void brokenTelevision (IplImage *);
+	void brokenTelevision (IplImage *, int = 45);
 	void hStripFlip (IplImage *, int = 4);
 	void noise (IplImage *, int = 5);
 	void interlaceLines (IplImage *);
+	void horizontalSharpen (IplImage *);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, CvScalar &);
 	int getRand (int, int);
+	int getFrameLuminosity (IplImage *);
+
 }
 
 #endif
