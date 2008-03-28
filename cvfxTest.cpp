@@ -15,7 +15,7 @@
 	along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-	libcvfx 0.01
+	libcvfx 0.02 A05
 
 	cvfxTest is a simple application based on the demonstration code provided
 	by the OpenCV group. It is a testbed for creating and demonstrating different
@@ -111,7 +111,7 @@ int main(int argc, char * argv[]) {
 
 	cout << "\nUsing libcvfx version " << cvfx::CVFX_VERSION
 			 << "\n\nPress 'c' to capture and save an image.\n"
-			 << "Press the up and down arrow keys to switch effects.\n"
+			 << "Press the 'w' and 's' to switch effects.\n"
 			 << "Press 'ESC' or 'q' to quit.\n\n"
 			 << "Try not to quit using the UI, it won't shut down properly.\n\n" << endl;
 
@@ -203,10 +203,10 @@ int main(int argc, char * argv[]) {
 			else
 				cout << "Saved file as: " << utl.str() << endl;
 		}
-		else if (keypress == 82) {
+		else if (keypress == 119/*82*/) {
 			cout << getFilterName(++effectCounter) << endl;
 		}
-		else if (keypress == 84) {
+		else if (keypress == 115/*84*/) {
 			cout << getFilterName(--effectCounter) << endl;
 		}
 		else {

@@ -1,0 +1,33 @@
+# Project: Project1
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = cvfxTest.o libcvfx.o $(RES)
+LINKOBJ  = cvfxTest.o libcvfx.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib" -L"C:/Program Files/OpenCV/lib" -lcxcore -lcv -lcvaux -lhighgui -lml -lcvcam -L"C:/Program Files/OpenCV/otherlibs/highgui"
+INCS =  -I"C:/Dev-Cpp/include"  -I"C:/Program Files/OpenCV/cv/include"  -I"C:/Program Files/OpenCV/cvaux/include"  -I"C:/Program Files/OpenCV/cxcore/include"  -I"C:/Program Files/OpenCV/ml/include"  -I"C:/Program Files/OpenCV/otherlibs/cvcam/include"  -I"C:/Program Files/OpenCV/otherlibs/highgui" 
+CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"C:/Program Files/OpenCV/cv/include"  -I"C:/Program Files/OpenCV/cvaux/include"  -I"C:/Program Files/OpenCV/cxcore/include"  -I"C:/Program Files/OpenCV/ml/include"  -I"C:/Program Files/OpenCV/otherlibs/cvcam/include"  -I"C:/Program Files/OpenCV/otherlibs/highgui" 
+BIN  = windows.exe
+CXXFLAGS = $(CXXINCS)   -L"C:\Program Files\OpenCV\lib" -lcxcore -lcv -lcvaux -lhighgui -lml -lcvcam
+CFLAGS = $(INCS)   -L"C:\Program Files\OpenCV\lib" -lcxcore -lcv -lcvaux -lhighgui -lml -lcvcam
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before windows.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "windows.exe" $(LIBS)
+
+cvfxTest.o: cvfxTest.cpp
+	$(CPP) -c cvfxTest.cpp -o cvfxTest.o $(CXXFLAGS)
+
+libcvfx.o: libcvfx.cpp
+	$(CPP) -c libcvfx.cpp -o libcvfx.o $(CXXFLAGS)

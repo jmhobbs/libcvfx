@@ -15,7 +15,9 @@
 	along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-	libcvfx 0.01
+	libcvfx 0.02 A05
+
+    Declaration of libcvfx effects.
 
 	Author: John Hobbs
 	Homepage: http://www.velvetcache.org/
@@ -30,7 +32,7 @@
 
 namespace cvfx {
 
-	const char CVFX_VERSION[] = "0.02 A04";
+	const char CVFX_VERSION[] = "0.02 A05";
 
 	enum cornersType {
 		TOPLEFT_BOTTOMRIGHT,

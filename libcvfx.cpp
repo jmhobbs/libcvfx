@@ -15,7 +15,9 @@
 	along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-	libcvfx 0.01
+	libcvfx 0.02 A05
+	
+	Implementation of libcvfx effects.
 
 	Author: John Hobbs
 	Homepage: http://www.velvetcache.org/
@@ -355,7 +357,7 @@ namespace cvfx {
 		\author John Hobbs john@velvetcache.org
 	*/
 	void photoCopy (IplImage * frame, int threshold, int blue, int green, int red) {
-		threshold = 255.0*(threshold/100.0);
+		threshold = static_cast<int>(255.0*(threshold/100.0));
 		for(int i = 0; i < frame->height; i++) {
 			for(int j = 0; j < frame->width; j++) {
 				bgrNonPerm[0] = cvGet2D(frame,i,j);
@@ -505,7 +507,7 @@ namespace cvfx {
 				scalarAverage(bgrNonPerm[0],bgrNonPerm[1]);
 			}
 		}
-		return (bgrNonPerm[0].val[0] + bgrNonPerm[0].val[1] + bgrNonPerm[0].val[2])/3;
+		return static_cast<int>((bgrNonPerm[0].val[0] + bgrNonPerm[0].val[1] + bgrNonPerm[0].val[2])/3);
 	}
 
 }
