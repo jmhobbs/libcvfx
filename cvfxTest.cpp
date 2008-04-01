@@ -39,7 +39,7 @@ using namespace std;
 string getFilterName(int _effectCounter) {
 	switch (_effectCounter % TOTALEFFECTS) {
 		case 1:
-			return "green";
+			return "channelSelect";
 			break;
 		case 2:
 			return "mirror";
@@ -130,7 +130,7 @@ int main(int argc, char * argv[]) {
 
 		switch (effectCounter % TOTALEFFECTS) {
 			case 1:
-				cvfx::green(frame);
+				cvfx::channelSelect(frame,GREEN);
 				break;
 			case 2:
 				cvfx::mirror(frame);
@@ -163,7 +163,7 @@ int main(int argc, char * argv[]) {
 				cvfx::vStripFlip(frame);
 				break;
 			case 12:
-				cvfx::photoCopy(frame,15,0,225,0);
+				cvfx::photoCopy(frame);
 				break;
 			case 13:
 				cvfx::brokenTelevision(frame);

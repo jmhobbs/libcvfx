@@ -15,8 +15,8 @@
 	along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-	libcvfx 0.02 A05
-	
+	libcvfx 0.02 A06
+
 	Implementation of libcvfx effects.
 
 	Author: John Hobbs
@@ -139,17 +139,32 @@ namespace cvfx {
 	}
 
 	/*!
+		DEPRECATED - Use channelSelect.
 		Makes the image green. Can get very dark.
 
 		\param frame The frame to work on.
 		\author John Hobbs john@velvetcache.org
 	*/
 	void green (IplImage * frame) {
+		channelSelect(frame,YELLOW);
+	}
+
+	/*!
+		Reduces the image to the selected color. Can get very dark.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void channelSelect (IplImage * frame, channel toKeep) {
 		for(i = 0; i < frame->height; i++) {
 			for(j = 0; j < frame->width; j++) {
 				bgrNonPerm[0] = cvGet2D(frame,i,j);
-				bgrNonPerm[0].val[0] = 0;
-				bgrNonPerm[0].val[2] = 0;
+				if(toKeep == RED || toKeep == GREEN || toKeep == YELLOW)
+					bgrNonPerm[0].val[0] = 0;
+				if(toKeep == BLUE || toKeep == RED)
+					bgrNonPerm[0].val[1] = 0;
+				if(toKeep == GREEN || toKeep == BLUE)
+					bgrNonPerm[0].val[2] = 0;
 				cvSet2D(frame,i,j,bgrNonPerm[0]);
 			}
 		}
@@ -177,6 +192,7 @@ namespace cvfx {
 		Swaps the selected corners.
 
 		\param frame The frame to work on.
+		\param type The corners to work on, an enum of type "cornersType".
 		\author John Hobbs john@velvetcache.org
 	*/
 	void corners (IplImage * frame, cornersType type) {
@@ -346,34 +362,52 @@ namespace cvfx {
 
 	/*!
 		Distills the image down to two colors based on luminosity.
-		Replaces over-threshold values with white by default.
-		If you want something other than white, you may specify.
+		Replaces over-threshold values with one color, and unser threshold with another.
 
 		\param frame The frame to work on.
 		\param threshold The threshold, defaults to 10, but this needs to be carefully measured.
-		\param blue The blue aspect of the over threshold color.
-		\param green The green aspect of the over threshold color.
-		\param red The red aspect of the over threshold color.
+		\param overThreshold An rgb structure for the color over the threshold.
+		\param underThreshold An rgb structure for the color under the threshold.
 		\author John Hobbs john@velvetcache.org
 	*/
-	void photoCopy (IplImage * frame, int threshold, int blue, int green, int red) {
+	void photoCopy (IplImage * frame, rgb overThreshold, rgb underThreshold, int threshold) {
 		threshold = static_cast<int>(255.0*(threshold/100.0));
 		for(int i = 0; i < frame->height; i++) {
 			for(int j = 0; j < frame->width; j++) {
 				bgrNonPerm[0] = cvGet2D(frame,i,j);
 				if(threshold <= ((bgrNonPerm[0].val[0] + bgrNonPerm[0].val[1] + bgrNonPerm[0].val[2]) / 3)) {
-					bgrNonPerm[0].val[0] = blue;
-					bgrNonPerm[0].val[1] = green;
-					bgrNonPerm[0].val[2] = red;
+					bgrNonPerm[0].val[0] = overThreshold.blue;
+					bgrNonPerm[0].val[1] = overThreshold.green;
+					bgrNonPerm[0].val[2] = overThreshold.red;
 				}
 				else {
-					bgrNonPerm[0].val[0] = 0;
-					bgrNonPerm[0].val[1] = 0;
-					bgrNonPerm[0].val[2] = 0;
+					bgrNonPerm[0].val[0] = underThreshold.blue;
+					bgrNonPerm[0].val[1] = underThreshold.green;
+					bgrNonPerm[0].val[2] = underThreshold.red;
 				}
 				cvSet2D(frame,i,j,bgrNonPerm[0]);
 			}
 		}
+	}
+
+	/*!
+		Distills the image down to two colors based on luminosity.
+		Replaces over-threshold values with one color, and unser threshold with another.
+		Convinience version, over threshold is white, under threshold is black.
+
+		\param frame The frame to work on.
+		\param threshold The threshold, defaults to 10, but this needs to be carefully measured.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void photoCopy (IplImage * frame, int threshold) {
+		rgb over, under;
+		over.red = 255;
+		over.green = 255,
+		over.blue = 255;
+		under.red = 0;
+		under.green = 0;
+		under.blue = 0;
+		photoCopy(frame,over,under,threshold);
 	}
 
 	/*!

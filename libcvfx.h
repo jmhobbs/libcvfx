@@ -15,7 +15,7 @@
 	along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-	libcvfx 0.02 A05
+	libcvfx 0.02 A06
 
     Declaration of libcvfx effects.
 
@@ -32,7 +32,13 @@
 
 namespace cvfx {
 
-	const char CVFX_VERSION[] = "0.02 A05";
+	struct rgb {
+		int red;
+		int green;
+		int blue;
+	};
+
+	const char CVFX_VERSION[] = "0.02 A06";
 
 	enum cornersType {
 		TOPLEFT_BOTTOMRIGHT,
@@ -40,9 +46,17 @@ namespace cvfx {
 		BOTH
 	};
 
+	enum channel {
+		RED,
+		GREEN,
+		BLUE,
+		YELLOW
+	};
+
 	// The effects
 	void mirror (IplImage *);
 	void green (IplImage *);
+	void channelSelect (IplImage *, channel);
 	void monochrome (IplImage *);
 	void corners (IplImage *, cornersType = TOPLEFT_BOTTOMRIGHT);
 	void pixelize (IplImage *, int = 4);
@@ -53,7 +67,8 @@ namespace cvfx {
 	void oompaLoompa (IplImage *);
 	void invert (IplImage *);
 	void vStripFlip (IplImage *, int = 4);
-	void photoCopy (IplImage *, int = 10, int = 255, int = 255, int = 255);
+	void photoCopy (IplImage *, int = 10);
+	void photoCopy (IplImage *, rgb, rgb, int = 10);
 	void brokenTelevision (IplImage *, int = 45);
 	void hStripFlip (IplImage *, int = 4);
 	void noise (IplImage *, int = 5);
