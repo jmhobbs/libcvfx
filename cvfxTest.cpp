@@ -34,7 +34,7 @@
 #include <sstream>
 
 using namespace std;
-#define TOTALEFFECTS 17
+#define TOTALEFFECTS 18
 
 string getFilterName(int _effectCounter) {
 	switch (_effectCounter % TOTALEFFECTS) {
@@ -86,6 +86,9 @@ string getFilterName(int _effectCounter) {
 		case 16:
 			return "interlaceLines";
 			break;
+		case 17:
+			return "index";
+			break;
 		default:
 			return "none";
 			break;
@@ -130,7 +133,7 @@ int main(int argc, char * argv[]) {
 
 		switch (effectCounter % TOTALEFFECTS) {
 			case 1:
-				cvfx::channelSelect(frame,GREEN);
+				cvfx::channelSelect(frame,cvfx::GREEN);
 				break;
 			case 2:
 				cvfx::mirror(frame);
@@ -176,6 +179,9 @@ int main(int argc, char * argv[]) {
 				break;
 			case 16:
 				cvfx::interlaceLines(frame);
+				break;
+			case 17:
+				cvfx::index(frame);
 				break;
 			default:
 				break;

@@ -411,6 +411,35 @@ namespace cvfx {
 	}
 
 	/*!
+		Distills the image down to, currently, 8 colors.
+		Does so by splitting each channel to 0 or 255, based on a threshold of 128.
+		Much like "photoCopy", but measures and adjusts each channel independently.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void index (IplImage * frame) {
+		for(int i = 0; i < frame->height; i++) {
+			for(int j = 0; j < frame->width; j++) {
+				bgrNonPerm[0] = cvGet2D(frame,i,j);
+				if(bgrNonPerm[0].val[0] < 128)
+					bgrNonPerm[0].val[0] = 0;
+				else
+					bgrNonPerm[0].val[0] = 255;
+				if(bgrNonPerm[0].val[1] < 128)
+					bgrNonPerm[0].val[1] = 0;
+				else
+					bgrNonPerm[0].val[1] = 255;
+				if(bgrNonPerm[0].val[2] < 128)
+					bgrNonPerm[0].val[2] = 0;
+				else
+					bgrNonPerm[0].val[2] = 255;
+				cvSet2D(frame,i,j,bgrNonPerm[0]);
+			}
+		}
+	}
+
+	/*!
 		UNSTABLE
 		This one accesses the pixels directly, so it could do some crazy things to
 		your data, or even seg out.  It's a very strong effect when it does work though.

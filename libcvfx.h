@@ -74,6 +74,7 @@ namespace cvfx {
 	void noise (IplImage *, int = 5);
 	void interlaceLines (IplImage *);
 	void horizontalSharpen (IplImage *);
+	void index (IplImage *);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, CvScalar &);
