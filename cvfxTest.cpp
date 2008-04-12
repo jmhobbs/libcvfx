@@ -34,7 +34,7 @@
 #include <sstream>
 
 using namespace std;
-#define TOTALEFFECTS 18
+#define TOTALEFFECTS 22
 
 string getFilterName(int _effectCounter) {
 	switch (_effectCounter % TOTALEFFECTS) {
@@ -88,6 +88,18 @@ string getFilterName(int _effectCounter) {
 			break;
 		case 17:
 			return "index";
+			break;
+		case 18:
+			return "smush";
+			break;
+		case 19:
+			return "hjaggy";
+			break;
+		case 20:
+			return "vmirror";
+			break;
+		case 21:
+			return "cmirror";
 			break;
 		default:
 			return "none";
@@ -182,6 +194,18 @@ int main(int argc, char * argv[]) {
 				break;
 			case 17:
 				cvfx::index(frame);
+				break;
+			case 18:
+				cvfx::smush(frame);
+				break;
+			case 19:
+				cvfx::hjaggy(frame);
+				break;
+			case 20:
+				cvfx::vmirror(frame);
+				break;
+			case 21:
+				cvfx::cmirror(frame);
 				break;
 			default:
 				break;

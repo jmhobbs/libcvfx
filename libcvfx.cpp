@@ -78,6 +78,34 @@ namespace cvfx {
 	}
 
 	/*!
+		Vertical mirror. Mirrors top onto bottom.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void vmirror (IplImage * frame) {
+		for(int i = 0; i < frame->height/2; i++) {
+			for(int j =0; j < frame->width; j++) {
+				bgrNonPerm[0] = cvGet2D(frame, i, j);
+				cvSet2D(frame,frame->height-i-1,j,bgrNonPerm[0]);
+			}
+		}
+	}
+
+	/*!
+		Convinience function for a kaleidescope type center mirror.
+
+		\todo Perhaps re-implement to actually be efficient instead of two calls.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void cmirror (IplImage * frame) {
+		vmirror(frame);
+		mirror(frame);
+	}
+
+	/*!
 		Flips the image horizontally.
 
 		\param frame The frame to work on.
@@ -340,6 +368,47 @@ namespace cvfx {
 	}
 
 	/*!
+		Creates a kind of jagged look by stretching pixels across greater
+		horizontal spans.
+
+		\param frame The frame to work on.
+		\param jaggyness The number of pixels to stretch across.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void hjaggy (IplImage * frame, int jaggyness) {
+		for(int i = 0; i < frame->height; i++) {
+			for(int j =0; j < frame->width; j+= jaggyness) {
+				bgrNonPerm[0] = cvGet2D(frame, i, j);
+				for(int k = 0; k < jaggyness && (j+k) < frame->width; k++)
+					cvSet2D(frame,i,j+k,bgrNonPerm[0]);
+			}
+		}
+	}
+
+	/*!
+		BROKEN
+		Was supposed to elongate the image towards the center. Does but it's poor.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void smush (IplImage * frame) {
+		for(int i = 0; i < frame->height; i++) {
+			int counter = 0;
+			for(int j = 0; j < frame->width/2;) {
+				bgrNonPerm[0] = cvGet2D(frame, i, j);
+				++counter;
+				for(int k = 0; k < counter && (j+k) < frame->width/2 ; k++) {
+					/*scalarAverage(bgrNonPerm[0],bgrNonPerm[0]);
+					scalarAverage(bgrNonPerm[0],cvGet2D(frame,i,j+k));*/
+					cvSet2D(frame,i,j+k,bgrNonPerm[0]);
+				}
+				j+=counter;
+			}
+		}
+	}
+
+	/*!
 		Cuts image into vertical sections, every other section is vertically flipped.
 
 		\param frame The frame to work on.
@@ -536,17 +605,17 @@ namespace cvfx {
 		Convinience function to average two CvScalars.
 
 		\param left The CvScalar to put the result in.
-		\param right The other CvScalar to average in.
+		\param right The other CvScalar to average with.
 		\author John Hobbs john@velvetcache.org
 	*/
-	void scalarAverage (CvScalar & left, CvScalar & right) {
+	void scalarAverage (CvScalar & left, const CvScalar & right) {
 		left.val[0] = (right.val[0]+left.val[0])/2;
 		left.val[1] = (right.val[1]+left.val[1])/2;
 		left.val[2] = (right.val[2]+left.val[2])/2;
 	}
 
 	/*!
-		Convinience function to get random digit within a set of bounds.
+		Convinience function to get random integer within a set of bounds.
 
 		\param lowerBound The lower bound.
 		\param upperBound The upper bound.
@@ -558,6 +627,7 @@ namespace cvfx {
 
 	/*!
 		Return the average "weight" of the image.
+		NOTE: This is a flawed algorithm.
 
 		\param frame The frame to measure.
 		\return value The luminosity from 0 - 255

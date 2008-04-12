@@ -75,9 +75,13 @@ namespace cvfx {
 	void interlaceLines (IplImage *);
 	void horizontalSharpen (IplImage *);
 	void index (IplImage *);
+	void smush (IplImage *);
+	void hjaggy (IplImage *, int = 15);
+	void vmirror (IplImage *);
+	void cmirror (IplImage *);
 
 	// Internal stuff
-	void scalarAverage (CvScalar &, CvScalar &);
+	void scalarAverage (CvScalar &, const CvScalar &);
 	int getRand (int, int);
 	int getFrameLuminosity (IplImage *);
 
