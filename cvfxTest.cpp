@@ -63,7 +63,7 @@ string getFilterName(int _effectCounter) {
 			return "vFlip";
 			break;
 		case 9:
-			return "oompaLoompa";
+			return "UNUSED";
 			break;
 		case 10:
 			return "invert";
@@ -90,7 +90,7 @@ string getFilterName(int _effectCounter) {
 			return "index";
 			break;
 		case 18:
-			return "smush";
+			return "UNUSED";
 			break;
 		case 19:
 			return "hjaggy";
@@ -168,9 +168,6 @@ int main(int argc, char * argv[]) {
 			case 8:
 				cvfx::vFlip(frame);
 				break;
-			case 9:
-				cvfx::oompaLoompa(frame);
-				break;
 			case 10:
 				cvfx::invert(frame);
 				break;
@@ -194,9 +191,6 @@ int main(int argc, char * argv[]) {
 				break;
 			case 17:
 				cvfx::index(frame);
-				break;
-			case 18:
-				cvfx::smush(frame);
 				break;
 			case 19:
 				cvfx::hjaggy(frame);

@@ -15,7 +15,7 @@
 	along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-	libcvfx 0.02 A07
+	libcvfx 0.02 A08
 
     Declaration of libcvfx effects.
 
@@ -38,7 +38,7 @@ namespace cvfx {
 		int blue;
 	};
 
-	const char CVFX_VERSION[] = "0.02 A06";
+	const char CVFX_VERSION[] = "0.02 A08";
 
 	enum cornersType {
 		TOPLEFT_BOTTOMRIGHT,
@@ -55,30 +55,25 @@ namespace cvfx {
 
 	// The effects
 	void mirror (IplImage *);
-	void green (IplImage *);
+	void vmirror (IplImage *);
+	void cmirror (IplImage *);
+	void hFlip (IplImage *);
+	void vFlip (IplImage *);
 	void channelSelect (IplImage *, channel);
 	void monochrome (IplImage *);
 	void corners (IplImage *, cornersType = TOPLEFT_BOTTOMRIGHT);
+	void interlaceLines (IplImage *);
 	void pixelize (IplImage *, int = 4);
 	void memory (IplImage *, int = 5);
-	void bitmaptrip (IplImage *);
-	void hFlip (IplImage *);
-	void vFlip (IplImage *);
-	void oompaLoompa (IplImage *);
 	void invert (IplImage *);
+	void hjaggy (IplImage *, int = 15);
 	void vStripFlip (IplImage *, int = 4);
+	void hStripFlip (IplImage *, int = 4);
 	void photoCopy (IplImage *, int = 10);
 	void photoCopy (IplImage *, rgb, rgb, int = 10);
-	void brokenTelevision (IplImage *, int = 45);
-	void hStripFlip (IplImage *, int = 4);
-	void noise (IplImage *, int = 5);
-	void interlaceLines (IplImage *);
-	void horizontalSharpen (IplImage *);
 	void index (IplImage *);
-	void smush (IplImage *);
-	void hjaggy (IplImage *, int = 15);
-	void vmirror (IplImage *);
-	void cmirror (IplImage *);
+	void brokenTelevision (IplImage *, int = 45);
+	void noise (IplImage *, int = 5);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, const CvScalar &);

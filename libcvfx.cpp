@@ -41,7 +41,6 @@ namespace cvfx {
 	CvScalar pixelize_bgr;
 
 	// memory
-	int memory_frameCounter = 0;
 	IplImage * memory_frames[3];
 	bool memory_init = false;
 
@@ -149,36 +148,6 @@ namespace cvfx {
 	}
 
 	/*!
-		Swaps values in bgr to rbg, giving a purple/green effect.
-
-		\param frame The frame to work on.
-		\author John Hobbs john@velvetcache.org
-	*/
-	void oompaLoompa (IplImage * frame) {
-		for(int i = 0; i < frame->height; i++) {
-			for(int j = 0; j < frame->width; j++) {
-				bgrNonPerm[0] = cvGet2D(frame,i,j);
-				bgrNonPerm[1] = bgrNonPerm[0];
-				bgrNonPerm[0].val[0] = bgrNonPerm[1].val[2];
-				bgrNonPerm[0].val[1] = bgrNonPerm[1].val[0];
-				bgrNonPerm[0].val[2] = bgrNonPerm[1].val[1];
-				cvSet2D(frame,i,j,bgrNonPerm[0]);
-			}
-		}
-	}
-
-	/*!
-		DEPRECATED - Use channelSelect.
-		Makes the image green. Can get very dark.
-
-		\param frame The frame to work on.
-		\author John Hobbs john@velvetcache.org
-	*/
-	void green (IplImage * frame) {
-		channelSelect(frame,YELLOW);
-	}
-
-	/*!
 		Reduces the image to the selected color. Can get very dark.
 
 		\param frame The frame to work on.
@@ -256,28 +225,6 @@ namespace cvfx {
 		for(int i = 1; i < frame->height; i += 2)
 			for(int j = 0; j < frame->width; j++)
 				cvSet2D(frame,i,j,bgrNonPerm[0]);
-	}
-
-	/*!
-		BROKEN
-		Sharpen the image.
-
-		\param frame The frame to work on.
-		\author John Hobbs john@velvetcache.org
-	*/
-	void horizontalSharpen (IplImage * frame) {
-		IplImage * oFrame = cvCreateImage( cvGetSize(frame), frame->depth, 3 );
-		oFrame = cvCloneImage(frame);
-
-		for(int i = 0; i < frame->height; i++) {
-			for(int j = 1; j < frame->width; j++) {
-				bgrNonPerm[0] = cvGet2D(oFrame,i,j-1);
-				bgrNonPerm[1] = cvGet2D(oFrame,i,j);
-				bgrNonPerm[2] = cvGet2D(oFrame,i,j+1);
-				// if above a bound do double diff up, below do double diff down?
-				cvSet2D(frame,i,j,bgrNonPerm[0]);
-			}
-		}
 	}
 
 	/*!
@@ -378,29 +325,6 @@ namespace cvfx {
 	}
 
 	/*!
-		BROKEN
-		Was supposed to elongate the image towards the center. Does but it's poor.
-
-		\param frame The frame to work on.
-		\author John Hobbs john@velvetcache.org
-	*/
-	void smush (IplImage * frame) {
-		for(int i = 0; i < frame->height; i++) {
-			int counter = 0;
-			for(int j = 0; j < frame->width/2;) {
-				bgrNonPerm[0] = cvGet2D(frame, i, j);
-				++counter;
-				for(int k = 0; k < counter && (j+k) < frame->width/2 ; k++) {
-					/*scalarAverage(bgrNonPerm[0],bgrNonPerm[0]);
-					scalarAverage(bgrNonPerm[0],cvGet2D(frame,i,j+k));*/
-					cvSet2D(frame,i,j+k,bgrNonPerm[0]);
-				}
-				j+=counter;
-			}
-		}
-	}
-
-	/*!
 		Cuts image into vertical sections, every other section is vertically flipped.
 
 		\param frame The frame to work on.
@@ -422,8 +346,31 @@ namespace cvfx {
 	}
 
 	/*!
+		Cuts image into horizontal sections, every other section is horizontally flipped.
+
+		\param frame The frame to work on.
+		\param strips The number of strips to create.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void hStripFlip (IplImage * frame, int strips) {
+		int stripHeight = frame->height/strips;
+		for(int k = 1; k < strips; k += 2) {
+			for(int i = k*stripHeight; i < (k+1)*stripHeight; i++) {
+				for(int j = 0; j < frame->width/2; j++) {
+					bgrNonPerm[0] = cvGet2D(frame,i,j);
+					bgrNonPerm[1] = cvGet2D(frame,i,frame->width-1-j);
+					cvSet2D(frame,i,j,bgrNonPerm[1]);
+					cvSet2D(frame,i,frame->width-1-j,bgrNonPerm[0]);
+				}
+			}
+		}
+	}
+
+	/*!
 		Distills the image down to two colors based on luminosity.
 		Replaces over-threshold values with one color, and unser threshold with another.
+
+		\todo Version that auto adjusts threshold.
 
 		\param frame The frame to work on.
 		\param threshold The threshold, defaults to 10, but this needs to be carefully measured.
@@ -501,22 +448,6 @@ namespace cvfx {
 	}
 
 	/*!
-		UNSTABLE
-		This one accesses the pixels directly, so it could do some crazy things to
-		your data, or even seg out.  It's a very strong effect when it does work though.
-
-		\param frame The frame to work on.
-		\author John Hobbs john@velvetcache.org
-	*/
-	void bitmaptrip (IplImage * frame) {
-		for(int i = 0; i < frame->height; i++) {
-			for(int j =0; j < frame->width*3; j++) {
-				frame->imageData[(i*frame->width*3)+j] = frame->imageData[(i*frame->width*3)+j]*4+5;
-			}
-		}
-	}
-
-	/*!
 		Loops the image sort of like a busted television.
 
 		\param frame The frame to work on.
@@ -547,6 +478,7 @@ namespace cvfx {
 
 	/*!
 		BROKEN
+
 		Supposed to inject some random noise, but doesn't do a very good job of it.
 
 		\param frame The frame to work on.
@@ -568,28 +500,6 @@ namespace cvfx {
 			}
 		}
 	}
-
-	/*!
-		Cuts image into horizontal sections, every other section is horizontally flipped.
-
-		\param frame The frame to work on.
-		\param strips The number of strips to create.
-		\author John Hobbs john@velvetcache.org
-	*/
-	void hStripFlip (IplImage * frame, int strips) {
-		int stripHeight = frame->height/strips;
-		for(int k = 1; k < strips; k += 2) {
-			for(int i = k*stripHeight; i < (k+1)*stripHeight; i++) {
-				for(int j = 0; j < frame->width/2; j++) {
-					bgrNonPerm[0] = cvGet2D(frame,i,j);
-					bgrNonPerm[1] = cvGet2D(frame,i,frame->width-1-j);
-					cvSet2D(frame,i,j,bgrNonPerm[1]);
-					cvSet2D(frame,i,frame->width-1-j,bgrNonPerm[0]);
-				}
-			}
-		}
-	}
-
 
 	// Internal Stuff
 
@@ -618,8 +528,10 @@ namespace cvfx {
 	}
 
 	/*!
+		BROKEN
+
 		Return the average "weight" of the image.
-		NOTE: This is a flawed algorithm.
+		\todo This is a flawed algorithm. The method of averaging is bad.  ((5+7/2)+8)/2 != (5+7+8)/3
 
 		\param frame The frame to measure.
 		\return value The luminosity from 0 - 255
