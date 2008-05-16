@@ -57,6 +57,10 @@ namespace cvfx {
 	IplImage * vFlip_frame;
 	bool vFlip_init = false;
 
+	// pixelLapse
+	IplImage * pixelLapse_frame;
+	bool pixelLapse_init;
+
 	/////////////////////////////////////////////////////////////////
 	// The Effects
 
@@ -438,6 +442,8 @@ namespace cvfx {
 		\param frame The frame to work on.
 		\param speed The speed with which to move, from 1 to frame height. Defaults to 45.
 		\author John Hobbs john@velvetcache.org
+
+		\note Idea from effectv. http://effectv.sourceforge.net/
 	*/
 	void brokenTelevision (IplImage * frame, int speed) {
 
@@ -510,6 +516,32 @@ namespace cvfx {
 			}
 		}
 	}
+
+	/*!
+		BROKEN
+
+		Cool time lapse style capture.
+
+		\note Idea from http://www.pixel-lapse.com/
+	*/
+	void pixelLapse (IplImage * frame) {
+    if(!pixelLapse_init) {
+			bgrNonPerm[0].val[0] = 0;
+			bgrNonPerm[0].val[1] = 0;
+			bgrNonPerm[0].val[2] = 0;
+			pixelLapse_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
+      for(int i = 0; i < frame->height; i++)
+				for(int j = 0; j < frame->width; j++)
+					cvSet2D(frame,i,j,bgrNonPerm[0]);
+			pixelLapse_init = true;
+    }
+
+		// Take blocks of (4?) one frame at a time and place them on the pixelLapse
+		// stored frame, then show that one.
+
+	}
+
+
 
 	// Internal Stuff
 

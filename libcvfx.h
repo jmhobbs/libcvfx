@@ -77,6 +77,7 @@ namespace cvfx {
 	void brokenTelevision (IplImage *, int = 45);
 	void noise (IplImage *, int = 5);
 	void composite (IplImage *, IplImage *);
+	void pixelLapse (IplImage *);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, const CvScalar &);
