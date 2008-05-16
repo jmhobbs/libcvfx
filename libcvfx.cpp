@@ -534,7 +534,7 @@ namespace cvfx {
 		\author John Hobbs john@velvetcache.org
 	*/
 	int getRand (int lowerBound, int upperBound) {
-		return rand()%upperBound+lowerBound;
+		return lrand48()%upperBound+lowerBound;
 	}
 
 	/*!
