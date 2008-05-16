@@ -41,3 +41,7 @@ clean:
 
 .cpp.o:
 	$(COMPILER) $(OCVCFLAGS) -c $< -o $@
+
+cvfxTest.o: cvfxTest.cpp libcvfx.h
+
+libcvfx.o: libcvfx.cpp libcvfx.h

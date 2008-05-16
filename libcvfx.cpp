@@ -63,16 +63,10 @@ namespace cvfx {
 		\author John Hobbs john@velvetcache.org
 	*/
 	void mirror (IplImage * frame) {
-		int halfFrame = frame->width/2;
-		int frameBytes = frame->width*3-1;
 		for(i = 0; i < frame->height; i++) {
-			int offset = i*frame->width*3;
-			for(j = 0; j < halfFrame; j++) {
-				int jBytes = offset+frameBytes-(j*3);
-				int ojBytes = offset+(j*3);
-				frame->imageData[jBytes-2] = frame->imageData[ojBytes];
-				frame->imageData[jBytes-1] = frame->imageData[ojBytes+1];
-				frame->imageData[jBytes] = frame->imageData[ojBytes+2];
+			for(j = 0; j < frame->width/2; j++) {
+				bgrNonPerm[0] = cvGet2D(frame,i,j);
+				cvSet2D(frame,i,frame->width-j-1,bgrNonPerm[0]);
 			}
 		}
 	}
@@ -95,14 +89,21 @@ namespace cvfx {
 	/*!
 		Convinience function for a kaleidescope type center mirror.
 
-		\todo Perhaps re-implement to actually be efficient instead of two calls.
-
 		\param frame The frame to work on.
 		\author John Hobbs john@velvetcache.org
 	*/
 	void cmirror (IplImage * frame) {
-		vmirror(frame);
-		mirror(frame);
+		for(int i = 0; i < frame->height/2; i++) {
+			for(int j =0; j < frame->width/2; j++) {
+				bgrNonPerm[0] = cvGet2D(frame, i, j);
+				// Top right
+				cvSet2D(frame,i,frame->width-j-1,bgrNonPerm[0]);
+				// Bottom left
+				cvSet2D(frame,frame->height-i-1,j,bgrNonPerm[0]);
+				// Bottom right
+				cvSet2D(frame,frame->height-i-1,frame->width-j-1,bgrNonPerm[0]);
+			}
+		}
 	}
 
 	/*!
@@ -308,12 +309,10 @@ namespace cvfx {
 		Keeps a few previous frames in memory, and combines them to make ghost images
 		on the current frame.
 
-		\todo Add a random factor to frame storage.
-
 		\param frame The frame to work on.
 		\author John Hobbs john@velvetcache.org
 	*/
-	void memory (IplImage * frame) {
+	void memory (IplImage * frame, int randomness) {
 
 		if(!memory_init) {
 			for(int i = 0; i < 3; i++) {
@@ -323,16 +322,9 @@ namespace cvfx {
 			memory_init = true;
 		}
 
-		if(0 == memory_frameCounter)
-			memory_frames[0] = cvCloneImage(frame);
-		else if(2 == memory_frameCounter)
-			memory_frames[1] = cvCloneImage(frame);
-		else if(6 == memory_frameCounter)
-			memory_frames[2] = cvCloneImage(frame);
-		else if(12 <= memory_frameCounter)
-			memory_frameCounter = -1;
-
-		memory_frameCounter++;
+		if(0 == getRand(0,randomness)) {
+			memory_frames[getRand(0,2)] = cvCloneImage(frame);
+		}
 
 		for(int i = 0; i < frame->height; i++) {
 			for(int j =0; j < frame->width; j++) {

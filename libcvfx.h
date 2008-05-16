@@ -15,7 +15,7 @@
 	along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-	libcvfx 0.02 A06
+	libcvfx 0.02 A07
 
     Declaration of libcvfx effects.
 
@@ -60,7 +60,7 @@ namespace cvfx {
 	void monochrome (IplImage *);
 	void corners (IplImage *, cornersType = TOPLEFT_BOTTOMRIGHT);
 	void pixelize (IplImage *, int = 4);
-	void memory (IplImage *);
+	void memory (IplImage *, int = 5);
 	void bitmaptrip (IplImage *);
 	void hFlip (IplImage *);
 	void vFlip (IplImage *);
