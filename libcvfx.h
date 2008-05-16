@@ -38,6 +38,9 @@ namespace cvfx {
 		int blue;
 	};
 
+	extern rgb WHITE;
+	extern rgb BLACK;
+
 	const char CVFX_VERSION[] = "0.02 A08";
 
 	enum cornersType {
@@ -69,11 +72,11 @@ namespace cvfx {
 	void hjaggy (IplImage *, int = 15);
 	void vStripFlip (IplImage *, int = 4);
 	void hStripFlip (IplImage *, int = 4);
-	void photoCopy (IplImage *, int = 10);
-	void photoCopy (IplImage *, rgb, rgb, int = 10);
+	void photoCopy (IplImage *, rgb = WHITE, rgb = BLACK, int = 10);
 	void index (IplImage *);
 	void brokenTelevision (IplImage *, int = 45);
 	void noise (IplImage *, int = 5);
+	void composite (IplImage *, IplImage *);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, const CvScalar &);

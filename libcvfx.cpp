@@ -25,6 +25,11 @@
 #include "libcvfx.h"
 
 namespace cvfx {
+
+	// Definitions...
+	rgb WHITE = {255,255,255};
+	rgb BLACK = {0,0,0};
+
 	// Init Area
 
 	// shared
@@ -399,26 +404,6 @@ namespace cvfx {
 	}
 
 	/*!
-		Distills the image down to two colors based on luminosity.
-		Replaces over-threshold values with one color, and unser threshold with another.
-		Convinience version, over threshold is white, under threshold is black.
-
-		\param frame The frame to work on.
-		\param threshold The threshold, defaults to 10, but this needs to be carefully measured.
-		\author John Hobbs john@velvetcache.org
-	*/
-	void photoCopy (IplImage * frame, int threshold) {
-		rgb over, under;
-		over.red = 255;
-		over.green = 255,
-		over.blue = 255;
-		under.red = 0;
-		under.green = 0;
-		under.blue = 0;
-		photoCopy(frame,over,under,threshold);
-	}
-
-	/*!
 		Distills the image down to, currently, 8 colors.
 		Does so by splitting each channel to 0 or 255, based on a threshold of 128.
 		Much like "photoCopy", but measures and adjusts each channel independently.
@@ -496,6 +481,31 @@ namespace cvfx {
 					bgrNonPerm[0].val[2] = getRand(0,255);
 					scalarAverage(bgrNonPerm[0],bgrNonPerm[1]);
 					cvSet2D(frame,i,j,bgrNonPerm[0]);
+				}
+			}
+		}
+	}
+
+	/*!
+		BROKEN
+
+		Meant for green screen style compositing.
+
+		\todo Color threshold as an input.
+		\todo Intensity reflected onto the replacement pixels.
+
+		\param frame The frame to work on.
+		\param replace The frame containing anything to be replaced.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void composite (IplImage * frame, IplImage * replace) {
+		for(int i = 0; i < frame->height; i++) {
+			for(int j = 0; j < frame->width; j++) {
+				bgrNonPerm[0] = cvGet2D(frame,i,j);
+				if(bgrNonPerm[0].val[1] > bgrNonPerm[0].val[0] && bgrNonPerm[0].val[1] > bgrNonPerm[0].val[2]) {
+					if(bgrNonPerm[0].val[0] <= 85 && bgrNonPerm[0].val[2] <= 85) {
+						cvSet2D(frame,i,j,cvGet2D(replace,i,j));
+					}
 				}
 			}
 		}
