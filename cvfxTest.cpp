@@ -63,7 +63,7 @@ string getFilterName(int _effectCounter) {
 			return "vFlip";
 			break;
 		case 9:
-			return "UNUSED";
+			return "quantum";
 			break;
 		case 10:
 			return "invert";
@@ -90,7 +90,7 @@ string getFilterName(int _effectCounter) {
 			return "index";
 			break;
 		case 18:
-			return "UNUSED";
+			return "pixelLapse";
 			break;
 		case 19:
 			return "hjaggy";
@@ -165,6 +165,9 @@ int main(int argc, char * argv[]) {
 			case 7:
 				cvfx::hFlip(frame);
 				break;
+			case 9:
+				cvfx::quantum(frame);
+				break;
 			case 8:
 				cvfx::vFlip(frame);
 				break;
@@ -191,6 +194,9 @@ int main(int argc, char * argv[]) {
 				break;
 			case 17:
 				cvfx::index(frame);
+				break;
+			case 18:
+				cvfx::pixelLapse(frame);
 				break;
 			case 19:
 				cvfx::hjaggy(frame);

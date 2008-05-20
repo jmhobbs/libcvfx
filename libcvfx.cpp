@@ -24,6 +24,8 @@
 */
 #include "libcvfx.h"
 
+#include <iostream>
+
 namespace cvfx {
 
 	// Definitions...
@@ -59,7 +61,13 @@ namespace cvfx {
 
 	// pixelLapse
 	IplImage * pixelLapse_frame;
-	bool pixelLapse_init;
+	bool pixelLapse_init = false;
+	int pixelLapse_x, pixelLapse_y;
+
+	// quantum
+	IplImage * quantum_frames[8];
+	bool quantum_init;
+	short quantum_counter;
 
 	/////////////////////////////////////////////////////////////////
 	// The Effects
@@ -409,25 +417,26 @@ namespace cvfx {
 
 	/*!
 		Distills the image down to, currently, 8 colors.
-		Does so by splitting each channel to 0 or 255, based on a threshold of 128.
+		Does so by splitting each channel to 0 or 255, based on a threshold.
 		Much like "photoCopy", but measures and adjusts each channel independently.
 
 		\param frame The frame to work on.
+		\param threshold The threshold to scale the channel on. Defaults to 100 (max 255, min 0)
 		\author John Hobbs john@velvetcache.org
 	*/
-	void index (IplImage * frame) {
+	void index (IplImage * frame, int threshold) {
 		for(int i = 0; i < frame->height; i++) {
 			for(int j = 0; j < frame->width; j++) {
 				bgrNonPerm[0] = cvGet2D(frame,i,j);
-				if(bgrNonPerm[0].val[0] < 128)
+				if(bgrNonPerm[0].val[0] < threshold)
 					bgrNonPerm[0].val[0] = 0;
 				else
 					bgrNonPerm[0].val[0] = 255;
-				if(bgrNonPerm[0].val[1] < 128)
+				if(bgrNonPerm[0].val[1] < threshold)
 					bgrNonPerm[0].val[1] = 0;
 				else
 					bgrNonPerm[0].val[1] = 255;
-				if(bgrNonPerm[0].val[2] < 128)
+				if(bgrNonPerm[0].val[2] < threshold)
 					bgrNonPerm[0].val[2] = 0;
 				else
 					bgrNonPerm[0].val[2] = 255;
@@ -518,13 +527,17 @@ namespace cvfx {
 	}
 
 	/*!
-		BROKEN
+		Cool time lapse style capture. This can be a very slow effect.
+		If you use the random flag it will places the blocks randomly, and be even slower.
 
-		Cool time lapse style capture.
+		\param frame The frame to work on.
+		\param blockSize The size of each replacement block.  The smaller the blocks the slower the render. Defaults to 32.
+		\param random If true, then it doesn't go linear. It places random blocks on the screen. Can take a long time to get a full frame. Defaults to false.
+		\author John Hobbs john@velvetcache.org
 
 		\note Idea from http://www.pixel-lapse.com/
 	*/
-	void pixelLapse (IplImage * frame) {
+	void pixelLapse (IplImage * frame, int blockSize, bool random) {
     if(!pixelLapse_init) {
 			bgrNonPerm[0].val[0] = 0;
 			bgrNonPerm[0].val[1] = 0;
@@ -532,13 +545,62 @@ namespace cvfx {
 			pixelLapse_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
       for(int i = 0; i < frame->height; i++)
 				for(int j = 0; j < frame->width; j++)
-					cvSet2D(frame,i,j,bgrNonPerm[0]);
+					cvSet2D(pixelLapse_frame,i,j,bgrNonPerm[0]);
 			pixelLapse_init = true;
+			pixelLapse_x = 0;
+			pixelLapse_y = 0;
     }
 
-		// Take blocks of (4?) one frame at a time and place them on the pixelLapse
-		// stored frame, then show that one.
+		for(int i = 0; i < blockSize && (i+pixelLapse_y) < frame->height; i++) {
+			for(int j = 0; j < blockSize && (j+pixelLapse_x) < frame->width; j++) {
+				cvSet2D(pixelLapse_frame,i+pixelLapse_y,j+pixelLapse_x,cvGet2D(frame,i+pixelLapse_y,j+pixelLapse_x));
+			}
+		}
 
+		if(random) {
+			pixelLapse_x = getRand(0,frame->width-1);
+			pixelLapse_y = getRand(0,frame->height-1);
+		}
+		else {
+			pixelLapse_x += blockSize;
+			if(pixelLapse_x >= frame->width) {
+				pixelLapse_x = 0;
+				pixelLapse_y += blockSize;
+				if(pixelLapse_y >= frame->height)
+					pixelLapse_y = 0;
+			}
+		}
+		//! \todo Is there a better way here?
+		for(int i = 0; i < frame->height; i++)
+			for(int j = 0; j < frame->width; j++)
+				cvSet2D(frame,i,j,cvGet2D(pixelLapse_frame,i,j));
+
+	}
+
+	/*!
+		Does a fuzzy thing with movement.
+		Almost direct rip from effectv.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void quantum (IplImage * frame) {
+		if(!quantum_init) {
+			for(int i = 0; i < 8; i++) {
+				quantum_frames[i] = cvCreateImage(cvGetSize(frame), frame->depth, 3);
+				quantum_frames[i] = cvCloneImage(frame);
+			}
+			quantum_counter = 0;
+			quantum_init = true;
+		}
+		quantum_frames[quantum_counter] = cvCloneImage(frame);
+
+		for(int i = 0; i < frame->height; i++)
+			for(int j = 0; j < frame->width; j++)
+					cvSet2D(frame,i,j,cvGet2D(quantum_frames[getRand(0,7)],i,j));
+
+		if(++quantum_counter > 7)
+			quantum_counter = 0;
 	}
 
 
