@@ -66,8 +66,12 @@ namespace cvfx {
 
 	// quantum
 	IplImage * quantum_frames[8];
-	bool quantum_init;
+	bool quantum_init = false;
 	short quantum_counter;
+
+	// dice
+	IplImage * dice_frame;
+	bool dice_init = false;
 
 	/////////////////////////////////////////////////////////////////
 	// The Effects
@@ -615,10 +619,37 @@ namespace cvfx {
 
 		\note Idea from effectv, 'diceTV'. http://effectv.sourceforge.net/
 	*/
-	void dice (Iplimage * frame, int blockSize) {
+	void dice (IplImage * frame, int blockSize) {
+		if(!dice_init) {
+			dice_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
+			dice_init = true;
+		}
+		dice_frame = cvCloneImage(frame);
 		for(int i = 0; i < frame->height; i += blockSize) {
 			for(int j = 0; j < frame->width; j += blockSize) {
-				// TODO
+				int flip = getRand(0,3);
+				// 0 - no, 1 - 90o, 2 - 180, 3 - 240
+				if(1 == flip) {
+					for(int k = 0; k < blockSize && k+i < frame->height; k++) {
+						for(int l = 0; l < blockSize && l+j < frame->width; l++) {
+							cvSet2D(frame,l+i,k+j,cvGet2D(dice_frame,k+i,l+j));
+						}
+					}
+				}
+				else if(2 == flip) {
+					/*for(int k = 0; k < blockSize && k+i < frame->height; k++) {
+						for(int l = 0; l < blockSize && l+j < frame->width; l++) {
+							cvSet2D(frame,(i+blockSize)-k,(j+blockSize)-l,cvGet2D(dice_frame,k+i,l+j));
+						}
+					}*/
+				}
+				else if(3 == flip) {
+					for(int k = 0; k < blockSize && k+i < frame->height; k++) {
+						for(int l = 0; l < blockSize && l+j < frame->width; l++) {
+							cvSet2D(frame,(i+blockSize)-k,j+l,cvGet2D(dice_frame,k+i,l+j));
+						}
+					}
+				}
 			}
 		}
 	}

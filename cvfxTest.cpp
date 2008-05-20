@@ -34,7 +34,7 @@
 #include <sstream>
 
 using namespace std;
-#define TOTALEFFECTS 22
+#define TOTALEFFECTS 23
 
 string getFilterName(int _effectCounter) {
 	switch (_effectCounter % TOTALEFFECTS) {
@@ -100,6 +100,9 @@ string getFilterName(int _effectCounter) {
 			break;
 		case 21:
 			return "cmirror";
+			break;
+		case 22:
+			return "dice";
 			break;
 		default:
 			return "none";
@@ -206,6 +209,9 @@ int main(int argc, char * argv[]) {
 				break;
 			case 21:
 				cvfx::cmirror(frame);
+				break;
+			case 22:
+				cvfx::dice(frame);
 				break;
 			default:
 				break;
