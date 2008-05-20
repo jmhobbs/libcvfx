@@ -579,10 +579,11 @@ namespace cvfx {
 
 	/*!
 		Does a fuzzy thing with movement.
-		Almost direct rip from effectv.
 
 		\param frame The frame to work on.
 		\author John Hobbs john@velvetcache.org
+
+    \note Idea and pseudo code from effectv, 'quark'. http://effectv.sourceforge.net/
 	*/
 	void quantum (IplImage * frame) {
 		if(!quantum_init) {
@@ -603,7 +604,24 @@ namespace cvfx {
 			quantum_counter = 0;
 	}
 
+  /*!
+		BROKEN
 
+		Cuts the image into blocks, the rotates them randomly.
+
+		\param frame The frame to work on.
+		\param bloackSize The size of the blocks.
+		\author John Hobbs john@velvetcache.org
+
+		\note Idea from effectv, 'diceTV'. http://effectv.sourceforge.net/
+	*/
+	void dice (Iplimage * frame, int blockSize) {
+		for(int i = 0; i < frame->height; i += blockSize) {
+			for(int j = 0; j < frame->width; j += blockSize) {
+				// TODO
+			}
+		}
+	}
 
 	// Internal Stuff
 

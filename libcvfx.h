@@ -79,6 +79,7 @@ namespace cvfx {
 	void composite (IplImage *, IplImage *);
 	void pixelLapse (IplImage *, int = 32, bool = false);
 	void quantum (IplImage *);
+	void dice (IplImage *, int = 16);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, const CvScalar &);
