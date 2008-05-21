@@ -20,28 +20,32 @@
 
 # Compiler setup
 CC=g++
-CFLAGS=-Wall -g
+CFLAGS=-fPIC -Wall -g -c
+MKLIBFLAGS=-shared -Wl,-soname,libcvfx.so.1
 COMPILER=$(CC) $(CFLAGS)
+COMPMKLIB=$(CC) $(MKLIBFLAGS)
 
 # OpenCV
 OCVCFLAGS=`pkg-config --cflags opencv`
 OCVLFLAGS=`pkg-config --libs --cflags opencv`
 
 # Program targets
-cvfxTest: cvfxTest.o libcvfx.o
-	$(COMPILER) $(OCVLFLAGS) cvfxTest.o libcvfx.o -o $@
+install:
+	./install.sh
+
+dynlib: cvfx.o
+	$(COMPMKLIB) -o libcvfx.so.1.0.1 cvfx.o -lc
+
+test: test.cpp
+	$(CC) -Wall -g $(OCVLFLAGS) -lcvfx test.cpp -o $@
+
+cvfx.o: cvfx.cpp cvfx.h
+	$(COMPILER) $(OCVCFLAGS) $(CFLAGS) -c $< -o $@
 
 clean:
-	@rm -f cvfxTest
+	@rm -f test
 	@rm -f *.o
+	@rm -f *.so.*
 	@echo "Spotless!"
 
-# Object targets
-.SUFFIXES : .cpp .o
 
-.cpp.o:
-	$(COMPILER) $(OCVCFLAGS) -c $< -o $@
-
-cvfxTest.o: cvfxTest.cpp libcvfx.h
-
-libcvfx.o: libcvfx.cpp libcvfx.h

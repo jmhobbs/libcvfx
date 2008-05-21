@@ -15,9 +15,9 @@
 	along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-	libcvfx 0.02 A08
+	libcvfx 1.0.1 A01
 
-    Declaration of libcvfx effects.
+	Declaration of libcvfx effects.
 
 	Author: John Hobbs
 	Homepage: http://www.velvetcache.org/

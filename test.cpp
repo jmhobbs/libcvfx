@@ -15,7 +15,7 @@
 	along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-	libcvfx 0.02 A05
+	libcvfx 1.0.1 A01
 
 	cvfxTest is a simple application based on the demonstration code provided
 	by the OpenCV group. It is a testbed for creating and demonstrating different
@@ -26,7 +26,7 @@
 */
 #include "cv.h"
 #include "highgui.h"
-#include "libcvfx.h"
+#include <cvfx.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>

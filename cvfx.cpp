@@ -15,14 +15,14 @@
 	along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-	libcvfx 0.02 A06
+	libcvfx 1.0.1 A01
 
 	Implementation of libcvfx effects.
 
 	Author: John Hobbs
 	Homepage: http://www.velvetcache.org/
 */
-#include "libcvfx.h"
+#include "cvfx.h"
 
 #include <iostream>
 
