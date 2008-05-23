@@ -29,6 +29,7 @@
 #include "highgui.h"
 
 #include <stdlib.h>
+#include <string>
 
 namespace cvfx {
 
@@ -56,6 +57,33 @@ namespace cvfx {
 		YELLOW
 	};
 
+	enum effect {
+		NONE,
+		MIRROR,
+		VMIRROR,
+		CMIRROR,
+		HFLIP,
+		VFLIP,
+		CHANNELSELECT,
+		MONOCHROME,
+		CORNERS,
+		INTERLACELINES,
+		PIXELIZE,
+		MEMORY,
+		INVERT,
+		HJAGGY,
+		VSTRIPFLIP,
+		HSTRIPFLIP,
+		PHOTOCOPY,
+		INDEX,
+		BROKENTELEVISION,
+		NOISE,
+		COMPOSITE,
+		PIXELLAPSE,
+		QUANTUM,
+		DICE
+	};
+
 	// The effects
 	void mirror (IplImage *);
 	void vmirror (IplImage *);
@@ -80,11 +108,17 @@ namespace cvfx {
 	void pixelLapse (IplImage *, int = 32, bool = false);
 	void quantum (IplImage *);
 	void dice (IplImage *, int = 16);
+	void filmstrip (IplImage *, int = 3);
+	void delayMirror (IplImage *);
+	void jitter (IplImage *);
+	void colorStreak (IplImage *);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, const CvScalar &);
 	int getRand (int, int);
 	int getFrameLuminosity (IplImage *);
+
+	std::string static getEffectName(effect);
 
 }
 

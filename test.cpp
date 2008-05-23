@@ -34,7 +34,7 @@
 #include <sstream>
 
 using namespace std;
-#define TOTALEFFECTS 23
+#define TOTALEFFECTS 26
 
 string getFilterName(int _effectCounter) {
 	switch (_effectCounter % TOTALEFFECTS) {
@@ -103,6 +103,15 @@ string getFilterName(int _effectCounter) {
 			break;
 		case 22:
 			return "dice";
+			break;
+		case 23:
+			return "delayMirror";
+			break;
+		case 24:
+			return "jitter";
+			break;
+		case 25:
+			return "colorStreak";
 			break;
 		default:
 			return "none";
@@ -212,6 +221,15 @@ int main(int argc, char * argv[]) {
 				break;
 			case 22:
 				cvfx::dice(frame);
+				break;
+			case 23:
+				cvfx::delayMirror(frame);
+				break;
+			case 24:
+				cvfx::jitter(frame);
+				break;
+			case 25:
+				cvfx::colorStreak(frame);
 				break;
 			default:
 				break;

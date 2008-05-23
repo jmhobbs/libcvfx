@@ -73,6 +73,24 @@ namespace cvfx {
 	IplImage * dice_frame;
 	bool dice_init = false;
 
+	// filmstrip
+	IplImage * filmstrip_frame;
+	bool filmstrip_init = false;
+
+	// delayMirror
+	IplImage * delayMirror_frames[24];
+	int delayMirror_counter;
+	bool delayMirror_init = false;
+
+	// jitter
+	IplImage * jitter_frame;
+	bool jitter_init = false;
+
+	// colorStreak
+	IplImage * colorStreak_frames[4];
+	int colorStreak_counter;
+	bool colorStreak_init = false;
+
 	/////////////////////////////////////////////////////////////////
 	// The Effects
 
@@ -343,6 +361,9 @@ namespace cvfx {
 					cvSet2D(frame,i,j+k,bgrNonPerm[0]);
 			}
 		}
+		IplImage * frameCopy = cvCreateImage( cvGetSize(frame), frame->depth, 3 );
+		frameCopy = cvCloneImage(frame);
+		cvSmooth(frameCopy,frame,7);
 	}
 
 	/*!
@@ -620,6 +641,7 @@ namespace cvfx {
 		\note Idea from effectv, 'diceTV'. http://effectv.sourceforge.net/
 	*/
 	void dice (IplImage * frame, int blockSize) {
+		return;
 		if(!dice_init) {
 			dice_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
 			dice_init = true;
@@ -627,16 +649,16 @@ namespace cvfx {
 		dice_frame = cvCloneImage(frame);
 		for(int i = 0; i < frame->height; i += blockSize) {
 			for(int j = 0; j < frame->width; j += blockSize) {
-				int flip = getRand(0,3);
+				int flip = getRand(1,3);
 				// 0 - no, 1 - 90o, 2 - 180, 3 - 240
-				if(1 == flip) {
+				if(2 == flip) {
 					for(int k = 0; k < blockSize && k+i < frame->height; k++) {
 						for(int l = 0; l < blockSize && l+j < frame->width; l++) {
 							cvSet2D(frame,l+i,k+j,cvGet2D(dice_frame,k+i,l+j));
 						}
 					}
 				}
-				else if(2 == flip) {
+				else if(1 == flip) {
 					/*for(int k = 0; k < blockSize && k+i < frame->height; k++) {
 						for(int l = 0; l < blockSize && l+j < frame->width; l++) {
 							cvSet2D(frame,(i+blockSize)-k,(j+blockSize)-l,cvGet2D(dice_frame,k+i,l+j));
@@ -653,6 +675,103 @@ namespace cvfx {
 			}
 		}
 	}
+
+	void filmstrip (IplImage * frame, int divisor) {
+		if(!filmstrip_init) {
+			filmstrip_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
+			filmstrip_init = true;
+		}
+		filmstrip_frame = cvCloneImage(frame);
+		//cvResize( const CvArr* src, CvArr* dst, int interpolation=CV_INTER_LINEAR )
+	}
+
+	// Normal hmirror, but oneside is out of sync, old frames.
+	// slightly influenced by effectv
+	void delayMirror (IplImage * frame) {
+		if(!delayMirror_init) {
+			for(int i = 0; i < 24; i++) {
+				delayMirror_frames[i] = cvCreateImage(cvGetSize(frame), frame->depth, 3);
+				delayMirror_frames[i] = cvCloneImage(frame);
+			}
+			delayMirror_init = true;
+			delayMirror_counter = 0;
+		}
+
+		if(++delayMirror_counter >= 24)
+			delayMirror_counter = 0;
+
+		delayMirror_frames[delayMirror_counter] = cvCloneImage(frame);
+
+		for(int i = 0; i < frame->height; i++) {
+			for(int j = frame->width/2; j < frame->width; j++) {
+				cvSet2D(frame,i,j,cvGet2D(delayMirror_frames[(delayMirror_counter+12)%24],i,j));
+			}
+		}
+
+	}
+
+	// toss in a frame randomly from old frame buffer to make things jitter - effectv
+	void jitter (IplImage * frame) {
+		if(!jitter_init) {
+			jitter_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
+			jitter_frame = cvCloneImage(frame);
+			jitter_init = true;
+		}
+
+		if(1 == getRand(0,3)) {
+			jitter_frame = cvCloneImage(frame);
+		}
+		else if(1 == getRand(0,3)) {
+			//! \todo How come this doesn't work?
+			//frame = cvCloneImage(jitter_frame);
+			for(int i = 0; i < frame->height; i++)
+				for(int j = 0; j < frame->width; j++)
+					cvSet2D(frame,i,j,cvGet2D(jitter_frame,i,j));
+		}
+
+	}
+
+	// from effectv - do streaky memory but tint each frame a different color
+	// Slooooow.  Consider only changing "very" different pixels and doing color inline.
+	void colorStreak (IplImage * frame) {
+		if(!colorStreak_init) {
+			for(int i = 0; i < 4; i++) {
+				colorStreak_frames[i] = cvCreateImage(cvGetSize(frame), frame->depth, 3);
+				colorStreak_frames[i] = cvCloneImage(frame);
+			}
+			colorStreak_init = true;
+			colorStreak_counter = 0;
+		}
+
+		if(++colorStreak_counter >= 4)
+			colorStreak_counter = 0;
+
+		colorStreak_frames[colorStreak_counter] = cvCloneImage(frame);
+		if(0 == colorStreak_counter)
+			channelSelect(colorStreak_frames[colorStreak_counter],RED);
+		else if(1 == colorStreak_counter)
+			channelSelect(colorStreak_frames[colorStreak_counter],GREEN);
+		else if(2 == colorStreak_counter)
+			channelSelect(colorStreak_frames[colorStreak_counter],BLUE);
+		else
+			channelSelect(colorStreak_frames[colorStreak_counter],YELLOW);
+
+		for(int i = 0; i < frame->height; i++) {
+			for(int j =0; j < frame->width; j++) {
+				bgrNonPerm[0] = cvGet2D(frame, i, j);
+				bgrNonPerm[1] = bgrNonPerm[0]; // Used to add weight to the current image
+				for(int k = 0; k < 4; k++) {
+					bgrNonPerm[2] = cvGet2D(colorStreak_frames[k], i, j);
+					scalarAverage(bgrNonPerm[0],bgrNonPerm[2]);
+				}
+				scalarAverage(bgrNonPerm[0],bgrNonPerm[1]);
+				cvSet2D(frame,i,j,bgrNonPerm[0]);
+			}
+		}
+
+	}
+
+
 
 	// Internal Stuff
 
@@ -687,7 +806,7 @@ namespace cvfx {
 		\todo This is a flawed algorithm. The method of averaging is bad.  ((5+7/2)+8)/2 != (5+7+8)/3
 
 		\param frame The frame to measure.
-		\return value The luminosity from 0 - 255
+		\return The luminosity from 0 - 255
 	*/
 	int getFrameLuminosity (IplImage * frame) {
 		bgrNonPerm[0] = cvGet2D(frame, 1, 1);
@@ -698,6 +817,59 @@ namespace cvfx {
 			}
 		}
 		return static_cast<int>((bgrNonPerm[0].val[0] + bgrNonPerm[0].val[1] + bgrNonPerm[0].val[2])/3);
+	}
+
+	/*!
+		Get the cannonical name for an effect.
+
+		\param whatEffect The effect enum id of the effect.
+		\return A string containing the effect name.
+	*/
+	std::string getEffectName(effect whatEffect) {
+		switch(whatEffect) {
+			case NONE:
+			 return "None";
+			case MIRROR:
+				return "Mirror";
+			case VMIRROR:
+				return "Vertical Mirror";
+			case CMIRROR:
+				return "Central Mirror";
+			case HFLIP:
+				return "Horizontal Flip";
+			case VFLIP:
+				return "Vertical Flip";
+			case CHANNELSELECT:
+				return "Channel Select";
+			case MONOCHROME:
+				return "Monochrome";
+			case CORNERS:
+				return "Corner Swap";
+			case INTERLACELINES:
+				return "Fake Interlace";
+			case PIXELIZE:
+				return "Pixelize";
+			case MEMORY:
+				return "Memory";
+			case INVERT:
+				return "Invert";
+			case HJAGGY:
+				return "UNSUPPORTED";
+			case VSTRIPFLIP:
+				return "Vertical Strip Flip";
+			case HSTRIPFLIP:
+				return "Horizontal Strip Flip";
+			case PHOTOCOPY:
+			case INDEX:
+			case BROKENTELEVISION:
+			case NOISE:
+			case COMPOSITE:
+			case PIXELLAPSE:
+			case QUANTUM:
+			case DICE:
+			default:
+				return "UNKNOWN";
+		}
 	}
 
 }
