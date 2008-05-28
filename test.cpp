@@ -34,7 +34,7 @@
 #include <sstream>
 
 using namespace std;
-#define TOTALEFFECTS 26
+#define TOTALEFFECTS 27
 
 string getFilterName(int _effectCounter) {
 	switch (_effectCounter % TOTALEFFECTS) {
@@ -112,6 +112,9 @@ string getFilterName(int _effectCounter) {
 			break;
 		case 25:
 			return "colorStreak";
+			break;
+		case 26:
+			return "test";
 			break;
 		default:
 			return "none";
@@ -230,6 +233,9 @@ int main(int argc, char * argv[]) {
 				break;
 			case 25:
 				cvfx::colorStreak(frame);
+				break;
+			case 26:
+				cvfx::test(frame);
 				break;
 			default:
 				break;

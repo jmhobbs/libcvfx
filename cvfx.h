@@ -81,7 +81,8 @@ namespace cvfx {
 		COMPOSITE,
 		PIXELLAPSE,
 		QUANTUM,
-		DICE
+		DICE,
+		TEST
 	};
 
 	// The effects
@@ -112,6 +113,7 @@ namespace cvfx {
 	void delayMirror (IplImage *);
 	void jitter (IplImage *);
 	void colorStreak (IplImage *);
+	void test (IplImage *);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, const CvScalar &);

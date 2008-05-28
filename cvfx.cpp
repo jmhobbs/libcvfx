@@ -91,6 +91,11 @@ namespace cvfx {
 	int colorStreak_counter;
 	bool colorStreak_init = false;
 
+	// test
+	IplImage * test_frame;
+	int test_interval = 0;
+	bool test_init = false;
+
 	/////////////////////////////////////////////////////////////////
 	// The Effects
 
@@ -771,7 +776,26 @@ namespace cvfx {
 
 	}
 
+	void test (IplImage * frame) {
+  	if(!test_init) {
+			test_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
+			test_init = true;
+			test_interval = frame->width/2/10;
+		}
+		test_frame = cvCloneImage(frame);
 
+		for(int i = 0; i < frame->height; i++) {
+			for(int j = 0; j < frame->width/2; j++) {
+				bgrNonPerm[0] = cvGet2D(test_frame,i,j);
+				for(int k = 0; k < (j/test_interval) &&  (j-k) > 0; k++) {
+					bgrNonPerm[1] = cvGet2D(test_frame,i,j-k);
+					scalarAverage(bgrNonPerm[0],bgrNonPerm[1]); // WRONG! Add all together then divide :(
+				}
+				cvSet2D(frame,i,j,bgrNonPerm[0]);
+			}
+		}
+
+	}
 
 	// Internal Stuff
 
