@@ -113,6 +113,7 @@ namespace cvfx {
 	void delayMirror (IplImage *);
 	void jitter (IplImage *);
 	void colorStreak (IplImage *);
+	void unnamed1 (IplImage *);
 	void test (IplImage *);
 
 	// Internal stuff
