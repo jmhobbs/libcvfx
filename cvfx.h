@@ -109,19 +109,17 @@ namespace cvfx {
 	void pixelLapse (IplImage *, int = 32, bool = false);
 	void quantum (IplImage *);
 	void dice (IplImage *, int = 16);
-	void filmstrip (IplImage *, int = 3);
 	void delayMirror (IplImage *);
 	void jitter (IplImage *);
 	void colorStreak (IplImage *);
 	void unnamed1 (IplImage *);
+	void randomShift (IplImage *, int = 0, int = 20);
 	void test (IplImage *);
 
 	// Internal stuff
 	void scalarAverage (CvScalar &, const CvScalar &);
 	int getRand (int, int);
 	int getFrameLuminosity (IplImage *);
-
-	std::string static getEffectName(effect);
 
 }
 

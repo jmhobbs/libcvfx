@@ -96,10 +96,17 @@ namespace cvfx {
 	int unnamed1_interval = 0;
 	bool unnamed1_init = false;
 
+	// randomShift
+	IplImage * randomShift_frame;
+	bool randomShift_init = false;
+
 	// test
 	IplImage * test_frame;
 	int test_interval = 0;
 	bool test_init = false;
+
+	static short aSin[512];
+	static float reflectionmap[256][256];
 
 	/////////////////////////////////////////////////////////////////
 	// The Effects
@@ -645,7 +652,7 @@ namespace cvfx {
 		Cuts the image into blocks, the rotates them randomly.
 
 		\param frame The frame to work on.
-		\param bloackSize The size of the blocks.
+		\param blockSize The size of the blocks.
 		\author John Hobbs john@velvetcache.org
 
 		\note Idea from effectv, 'diceTV'. http://effectv.sourceforge.net/
@@ -686,17 +693,14 @@ namespace cvfx {
 		}
 	}
 
-	void filmstrip (IplImage * frame, int divisor) {
-		if(!filmstrip_init) {
-			filmstrip_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
-			filmstrip_init = true;
-		}
-		filmstrip_frame = cvCloneImage(frame);
-		//cvResize( const CvArr* src, CvArr* dst, int interpolation=CV_INTER_LINEAR )
-	}
+	/*!
+		Like a normal horizontal mirror, but one side is out of sync.
 
-	// Normal hmirror, but oneside is out of sync, old frames.
-	// slightly influenced by effectv
+		\todo No actual mirroring right now, just out of sync.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
 	void delayMirror (IplImage * frame) {
 		if(!delayMirror_init) {
 			for(int i = 0; i < 24; i++) {
@@ -720,7 +724,16 @@ namespace cvfx {
 
 	}
 
-	// toss in a frame randomly from old frame buffer to make things jitter - effectv
+	/*!
+		Like a normal horizontal mirror, but one side is out of sync.
+
+		\todo No actual mirroring right now, just out of sync.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+
+		\note Idea from effectv. http://effectv.sourceforge.net/
+	*/
 	void jitter (IplImage * frame) {
 		if(!jitter_init) {
 			jitter_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
@@ -741,8 +754,17 @@ namespace cvfx {
 
 	}
 
-	// from effectv - do streaky memory but tint each frame a different color
-	// Slooooow.  Consider only changing "very" different pixels and doing color inline.
+	/*!
+		BROKEN
+
+		Do streaky memory but tint each frame a different color
+		\todo This is slooooow. Consider only changing "very" different pixels and doing color inline.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+
+		\note Idea from effectv. http://effectv.sourceforge.net/
+	*/
 	void colorStreak (IplImage * frame) {
 		if(!colorStreak_init) {
 			for(int i = 0; i < 4; i++) {
@@ -781,6 +803,15 @@ namespace cvfx {
 
 	}
 
+	/*!
+		As object move farther from the left of the frame, their 'ghost' image separates farther
+		from the object.
+
+		\todo Find a witty name.
+
+		\param frame The frame to work on.
+		\author John Hobbs john@velvetcache.org
+	*/
 	void unnamed1 (IplImage * frame) {
   	if(!unnamed1_init) {
 			unnamed1_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
@@ -799,22 +830,34 @@ namespace cvfx {
 		}
 	}
 
+	/*!
+		Randomly shift rows by random amounts.
 
-	void test (IplImage * frame) {
-  	/*if(!test_init) {
-			test_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
-			test_init = true;
+		\param frame The frame to work on.
+		\param chance If you don't want 100% of the frames shifted, change this.
+		\param mshift The maximum shift value. Values over the frame width are reduced automatically.
+		\author John Hobbs john@velvetcache.org
+	*/
+	void randomShift (IplImage * frame, int chance, int mshift) {
+		if(!randomShift_init) {
+			randomShift_frame = cvCreateImage(cvGetSize(frame), frame->depth, 3);
+			randomShift_init = true;
 		}
-		test_frame = cvCloneImage(frame);*/
-
+		randomShift_frame = cvCloneImage(frame);
+		mshift = mshift%frame->width;
+		int shift = 0;
 		for(int i = 0; i < frame->height; i++) {
-			for(int j = 1; j < frame->width; j++) {
-				bgrNonPerm[0] = cvGet2D(frame,i,j-1);
-				scalarAverage(bgrNonPerm[0],cvGet2D(frame,i,j));
-				cvSet2D(frame,i,j,bgrNonPerm[0]);
+			if(0 == getRand(0,chance)) {
+				shift = getRand(0,mshift);
+				for(int j = 0; j < frame->width; j++) {
+					cvSet2D(frame,i,j,cvGet2D(randomShift_frame,i,(j+shift)%frame->width));
+				}
 			}
 		}
+	}
 
+	// Look into cvFilter2D
+	void test (IplImage * frame) {
 	}
 
 	// Internal Stuff
@@ -840,6 +883,8 @@ namespace cvfx {
 		\author John Hobbs john@velvetcache.org
 	*/
 	int getRand (int lowerBound, int upperBound) {
+		if(lowerBound == upperBound)
+			return lowerBound;
 		return lrand48()%upperBound+lowerBound;
 	}
 
@@ -861,59 +906,6 @@ namespace cvfx {
 			}
 		}
 		return static_cast<int>((bgrNonPerm[0].val[0] + bgrNonPerm[0].val[1] + bgrNonPerm[0].val[2])/3);
-	}
-
-	/*!
-		Get the cannonical name for an effect.
-
-		\param whatEffect The effect enum id of the effect.
-		\return A string containing the effect name.
-	*/
-	std::string getEffectName(effect whatEffect) {
-		switch(whatEffect) {
-			case NONE:
-			 return "None";
-			case MIRROR:
-				return "Mirror";
-			case VMIRROR:
-				return "Vertical Mirror";
-			case CMIRROR:
-				return "Central Mirror";
-			case HFLIP:
-				return "Horizontal Flip";
-			case VFLIP:
-				return "Vertical Flip";
-			case CHANNELSELECT:
-				return "Channel Select";
-			case MONOCHROME:
-				return "Monochrome";
-			case CORNERS:
-				return "Corner Swap";
-			case INTERLACELINES:
-				return "Fake Interlace";
-			case PIXELIZE:
-				return "Pixelize";
-			case MEMORY:
-				return "Memory";
-			case INVERT:
-				return "Invert";
-			case HJAGGY:
-				return "UNSUPPORTED";
-			case VSTRIPFLIP:
-				return "Vertical Strip Flip";
-			case HSTRIPFLIP:
-				return "Horizontal Strip Flip";
-			case PHOTOCOPY:
-			case INDEX:
-			case BROKENTELEVISION:
-			case NOISE:
-			case COMPOSITE:
-			case PIXELLAPSE:
-			case QUANTUM:
-			case DICE:
-			default:
-				return "UNKNOWN";
-		}
 	}
 
 }

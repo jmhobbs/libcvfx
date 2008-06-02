@@ -34,7 +34,7 @@
 #include <sstream>
 
 using namespace std;
-#define TOTALEFFECTS 28
+#define TOTALEFFECTS 29
 
 string getFilterName(int _effectCounter) {
 	switch (_effectCounter % TOTALEFFECTS) {
@@ -117,6 +117,9 @@ string getFilterName(int _effectCounter) {
 			return "unnamed1";
 			break;
 		case 27:
+			return "randomShift";
+			break;
+		case 28:
 			return "test";
 			break;
 		default:
@@ -241,13 +244,14 @@ int main(int argc, char * argv[]) {
 				cvfx::unnamed1(frame);
 				break;
 			case 27:
+				cvfx::randomShift(frame,3);
+				break;
+			case 28:
 				cvfx::test(frame);
 				break;
 			default:
 				break;
 		}
-
-
 
 		cvShowImage( "cvfxTest", frame );
 
